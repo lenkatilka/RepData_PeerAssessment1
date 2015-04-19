@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title>Activity Pattern Assignment</title>
+
+<script src="PA1_template_files/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="PA1_template_files/bootstrap-2.3.2/css/bootstrap.min.css" rel="stylesheet" />
+<link href="PA1_template_files/bootstrap-2.3.2/css/bootstrap-responsive.min.css" rel="stylesheet" />
+<script src="PA1_template_files/bootstrap-2.3.2/js/bootstrap.min.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="PA1_template_files/highlight/default.css"
+      type="text/css" />
+<script src="PA1_template_files/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+<div class="container-fluid main-container">
+
+
+<div id="header">
+<h1 class="title">Activity Pattern Assignment</h1>
+</div>
+
+
+<div id="what-is-mean-total-number-of-steps-taken-per-day" class="section level2">
+<h2>What is mean total number of steps taken per day?</h2>
+<div id="histogram-and-reporting-mean-and-median" class="section level4">
+<h4>Histogram and reporting mean and median</h4>
+<pre class="r"><code>activity&lt;-read.csv(&quot;activity.csv&quot;)
+library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;
+## 
+## The following object is masked from &#39;package:stats&#39;:
+## 
+##     filter
+## 
+## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>steps_act&lt;-activity[complete.cases(activity),]
+by_date&lt;-group_by(steps_act,date)
+daily_steps&lt;-summarise(by_date,sum(steps))
+names(daily_steps)&lt;-c(&quot;date&quot;,&quot;steps&quot;)
+hist(daily_steps$steps,main=&quot;Number of steps daily&quot;,xlab=&quot;Steps&quot;,col=&quot;wheat&quot;, breaks=10)</code></pre>
+<p><img src="PA1_template_files/figure-html/unnamed-chunk-1-1.png" /></p>
+<pre class="r"><code>mean_steps&lt;-mean(daily_steps$steps)
+mean_steps</code></pre>
+<pre><code>## [1] 10766.19</code></pre>
+<pre class="r"><code>median_steps&lt;-median(daily_steps$steps)
+median_steps</code></pre>
+<pre><code>## [1] 10765</code></pre>
+<ul>
+<li>The mean of the steps per day is 1.076618910^{4} steps.</li>
+<li>The median of the steps per day is 10765 steps.</li>
+</ul>
+</div>
+</div>
+<div id="what-is-the-average-daily-activity-pattern" class="section level2">
+<h2>What is the average daily activity pattern?</h2>
+<div id="average-number-of-steps-taken-for-all-days-per-5-minute-intervals" class="section level4">
+<h4>Average number of steps taken for all days per 5-minute intervals</h4>
+<pre class="r"><code>by_interval&lt;-group_by(steps_act,interval)
+mean_interval&lt;-summarise(by_interval,mean(steps))
+names(mean_interval)&lt;-c(&quot;steps&quot;,&quot;mean_steps&quot;)
+plot(mean_interval,type=&#39;l&#39;, main=&quot;Average number of steps per interval for all days&quot;, xlab=&quot;Interval&quot;,ylab=&quot;Average Steps&quot;)</code></pre>
+<p><img src="PA1_template_files/figure-html/unnamed-chunk-2-1.png" /></p>
+</div>
+<div id="reporting-the-interval-with-max-value-of-steps" class="section level4">
+<h4>Reporting the interval with max value of steps</h4>
+<p>The following computes the maximum average number of steps over all days and the interval with this maximum number of steps</p>
+<pre class="r"><code>max_steps&lt;-max(mean_interval[,2])
+max_int&lt;-as.numeric(filter(mean_interval,mean_steps==max(mean_interval[,2]))[1,1])
+max_int</code></pre>
+<pre><code>## [1] 835</code></pre>
+<ul>
+<li>The maximum average number of steps over all days is 206.1698113 for interval 835</li>
+</ul>
+</div>
+<div id="imputting-missing-values" class="section level3">
+<h3>Imputting missing values</h3>
+<div id="number-of-na-values-and-replacing-na-values" class="section level4">
+<h4>Number of NA values and replacing NA values</h4>
+<p>Here we first find the number of NA values in the variable steps</p>
+<pre class="r"><code>sum(is.na(activity$steps))</code></pre>
+<pre><code>## [1] 2304</code></pre>
+<p>and then we replace each NA with the mean for that interval; i.e if for example for day 2012-10-01 and interval 25 the variable steps has NA value, we replace the NA value with the mean for interval 25 over all days.</p>
+<p>The following code</p>
+<ul>
+<li>creates a copy of the activity label, called activity_filled</li>
+<li>performs this replacement/filling of the table.</li>
+</ul>
+<pre class="r"><code>activity_f&lt;-activity
+for(i in 1:nrow(activity_f))
+  { 
+    if(is.na(activity_f$steps[i]))
+      {activity_f$steps[i]&lt;-mean(activity_f[activity_f$interval==activity_f$interval[i],]$steps,na.rm=TRUE)}
+  }</code></pre>
+</div>
+<div id="histogram-and-reporting-mean-and-median-1" class="section level4">
+<h4>Histogram and reporting mean and median</h4>
+<p>The following computed the total number of steps for each day and plots the histogram</p>
+<pre class="r"><code>by_date_f&lt;-group_by(activity_f,date)
+daily_steps_f&lt;-summarise(by_date_f,sum(steps))
+names(daily_steps_f)&lt;-c(&quot;date&quot;,&quot;steps&quot;)
+hist(daily_steps_f$steps,main=&quot;Number of steps daily&quot;,xlab=&quot;Steps&quot;,col=&quot;wheat&quot;,breaks=10)</code></pre>
+<p><img src="PA1_template_files/figure-html/unnamed-chunk-6-1.png" /></p>
+<pre class="r"><code>mean_steps_f&lt;-mean(daily_steps_f$steps)
+mean_steps_f</code></pre>
+<pre><code>## [1] 10766.19</code></pre>
+<pre class="r"><code>median_steps_f&lt;-median(daily_steps_f$steps)
+median_steps_f</code></pre>
+<pre><code>## [1] 10766.19</code></pre>
+</div>
+<div id="difference-between-data-comparing-results-from-first-part-with-results-with-missing-values-replaced" class="section level4">
+<h4>Difference between data: comparing results from first part with results with missing values replaced</h4>
+<ul>
+<li>the height/frequency of the mean value in histogram is larger</li>
+<li>median differs from the median in the first part, since we have now different number of observations: we substituted the missing values with the average (mean) value for that interval. The median is now equal to mean, since there were multiple days with NA’s for all intervals and those got replaced by the average values. Therefore the total number of steps for such “NA days”&quot; is equal to the mean and the median is allocated within “NA days”.</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="are-there-differences-in-activity-patterns-between-weekdays-and-weekends" class="section level2">
+<h2>Are there differences in activity patterns between weekdays and weekends?</h2>
+<div id="creating-a-new-factor-variable-in-dataset-indicating-day-of-the-week" class="section level4">
+<h4>Creating a new (factor) variable in dataset indicating day of the week</h4>
+<pre class="r"><code>library(lubridate)
+activity_f&lt;-mutate(activity_f,day_type=wday(date)&lt;7&amp;wday(date)&gt;1)
+activity_f[activity_f$day_type==T,]$day_type&lt;-&quot;weekend&quot;
+activity_f[activity_f$day_type==F,]$day_type&lt;-&quot;weekday&quot;
+activity_f&lt;-transform(activity_f,day_type=factor(day_type))</code></pre>
+</div>
+<div id="barplot-of-the-average-number-of-steps-taken-averaged-over-all-weekendweekdays" class="section level4">
+<h4>Barplot of the average number of steps taken averaged over all weekend/weekdays</h4>
+<pre class="r"><code>library(lattice)
+by_int_day_t&lt;-group_by(activity_f,interval,day_type)
+act_int_day_t&lt;-summarise(by_int_day_t,Steps=mean(steps))
+xyplot(Steps~interval|day_type,data=act_int_day_t,layout=c(1,2),type=&#39;l&#39;,xlab=&quot;Interval&quot;,ylab=&quot;Number of steps&quot;) </code></pre>
+<p><img src="PA1_template_files/figure-html/unnamed-chunk-8-1.png" /></p>
+</div>
+</div>
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
