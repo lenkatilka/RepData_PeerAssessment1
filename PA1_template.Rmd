@@ -114,8 +114,8 @@ median_steps_f
 ```{r}
 library(lubridate)
 activity_f<-mutate(activity_f,day_type=wday(date)<7&wday(date)>1)
-activity_f[activity_f$day_type==T,]$day_type<-"weekend"
-activity_f[activity_f$day_type==F,]$day_type<-"weekday"
+activity_f[activity_f$day_type==T,]$day_type<-"weekday"
+activity_f[activity_f$day_type==F,]$day_type<-"weekend"
 activity_f<-transform(activity_f,day_type=factor(day_type))
 ```
 

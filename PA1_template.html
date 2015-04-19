@@ -174,8 +174,8 @@ median_steps_f</code></pre>
 <h4>Creating a new (factor) variable in dataset indicating day of the week</h4>
 <pre class="r"><code>library(lubridate)
 activity_f&lt;-mutate(activity_f,day_type=wday(date)&lt;7&amp;wday(date)&gt;1)
-activity_f[activity_f$day_type==T,]$day_type&lt;-&quot;weekend&quot;
-activity_f[activity_f$day_type==F,]$day_type&lt;-&quot;weekday&quot;
+activity_f[activity_f$day_type==T,]$day_type&lt;-&quot;weekday&quot;
+activity_f[activity_f$day_type==F,]$day_type&lt;-&quot;weekend&quot;
 activity_f&lt;-transform(activity_f,day_type=factor(day_type))</code></pre>
 </div>
 <div id="panel-plot-of-the-average-number-of-steps-taken-averaged-over-all-weekendweekdays" class="section level4">
