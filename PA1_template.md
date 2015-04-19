@@ -2,7 +2,7 @@
 
 ## What is mean total number of steps taken per day?
 
-#### Histogram and reporting mean and median
+#### Loading data
 
 
 ```r
@@ -23,6 +23,8 @@ library(dplyr)
 ##     intersect, setdiff, setequal, union
 ```
 
+#### Histogram and reporting mean and median
+
 ```r
 steps_act<-activity[complete.cases(activity),]
 by_date<-group_by(steps_act,date)
@@ -31,7 +33,7 @@ names(daily_steps)<-c("date","steps")
 hist(daily_steps$steps,main="Number of steps daily",xlab="Steps",col="wheat", breaks=10)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-1-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
 
 ```r
 mean_steps<-mean(daily_steps$steps)
@@ -66,7 +68,7 @@ names(mean_interval)<-c("steps","mean_steps")
 plot(mean_interval,type='l', main="Average number of steps per interval for all days", xlab="Interval",ylab="Average Steps")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
 
 #### Reporting the interval with max value of steps 
 
@@ -87,24 +89,28 @@ max_int
 
 ### Imputting missing values
 
-#### Number of NA values and replacing NA values
+#### Number of NA values
 
 Here we first find the number of NA values in the variable steps
 
 
 ```r
-sum(is.na(activity$steps))
+na_values_count<-sum(is.na(activity$steps))
+na_values_count
 ```
 
 ```
 ## [1] 2304
 ```
+The number of NA values is 2304.
 
-and then we replace each NA with the mean for that interval; i.e if for example for day 2012-10-01 and interval 25 the variable steps has NA value, we replace the NA value with the mean for interval 25 over all days. 
+#### Replacing NA values and creating a new dataset with all NA values filled
+
+We replace each NA with the mean for that interval; i.e if for example for day 2012-10-01 and interval 25 the variable steps has NA value, we replace the NA value with the mean for interval 25 over all days. 
 
 The following code 
 
-* creates a copy of the activity label, called activity_filled 
+* creates a copy of the activity label, called activity_f 
 * performs this replacement/filling of the table.
 
 
@@ -129,7 +135,7 @@ names(daily_steps_f)<-c("date","steps")
 hist(daily_steps_f$steps,main="Number of steps daily",xlab="Steps",col="wheat",breaks=10)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png) 
 
 ```r
 mean_steps_f<-mean(daily_steps_f$steps)
@@ -149,6 +155,9 @@ median_steps_f
 ## [1] 10766.19
 ```
 
+* The mean of the steps per day is 1.0766189\times 10^{4} steps.
+* The median of the steps per day is 1.0766189\times 10^{4} steps.
+
 #### Difference between data: comparing results from first part with results with missing values replaced
 
 * the height/frequency of the mean value in histogram is larger
@@ -167,7 +176,7 @@ activity_f[activity_f$day_type==F,]$day_type<-"weekday"
 activity_f<-transform(activity_f,day_type=factor(day_type))
 ```
 
-#### Barplot of the average number of steps taken averaged over all weekend/weekdays
+#### Panel plot of the average number of steps taken averaged over all weekend/weekdays
 
 
 ```r
@@ -177,4 +186,4 @@ act_int_day_t<-summarise(by_int_day_t,Steps=mean(steps))
 xyplot(Steps~interval|day_type,data=act_int_day_t,layout=c(1,2),type='l',xlab="Interval",ylab="Number of steps") 
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-8-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png) 

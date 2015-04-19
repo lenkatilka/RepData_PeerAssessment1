@@ -59,8 +59,8 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 
 <div id="what-is-mean-total-number-of-steps-taken-per-day" class="section level2">
 <h2>What is mean total number of steps taken per day?</h2>
-<div id="histogram-and-reporting-mean-and-median" class="section level4">
-<h4>Histogram and reporting mean and median</h4>
+<div id="loading-data" class="section level4">
+<h4>Loading data</h4>
 <pre class="r"><code>activity&lt;-read.csv(&quot;activity.csv&quot;)
 library(dplyr)</code></pre>
 <pre><code>## 
@@ -73,12 +73,15 @@ library(dplyr)</code></pre>
 ## The following objects are masked from &#39;package:base&#39;:
 ## 
 ##     intersect, setdiff, setequal, union</code></pre>
+</div>
+<div id="histogram-and-reporting-mean-and-median" class="section level4">
+<h4>Histogram and reporting mean and median</h4>
 <pre class="r"><code>steps_act&lt;-activity[complete.cases(activity),]
 by_date&lt;-group_by(steps_act,date)
 daily_steps&lt;-summarise(by_date,sum(steps))
 names(daily_steps)&lt;-c(&quot;date&quot;,&quot;steps&quot;)
 hist(daily_steps$steps,main=&quot;Number of steps daily&quot;,xlab=&quot;Steps&quot;,col=&quot;wheat&quot;, breaks=10)</code></pre>
-<p><img src="PA1_template_files/figure-html/unnamed-chunk-1-1.png" /></p>
+<p><img src="PA1_template_files/figure-html/unnamed-chunk-2-1.png" /></p>
 <pre class="r"><code>mean_steps&lt;-mean(daily_steps$steps)
 mean_steps</code></pre>
 <pre><code>## [1] 10766.19</code></pre>
@@ -99,7 +102,7 @@ median_steps</code></pre>
 mean_interval&lt;-summarise(by_interval,mean(steps))
 names(mean_interval)&lt;-c(&quot;steps&quot;,&quot;mean_steps&quot;)
 plot(mean_interval,type=&#39;l&#39;, main=&quot;Average number of steps per interval for all days&quot;, xlab=&quot;Interval&quot;,ylab=&quot;Average Steps&quot;)</code></pre>
-<p><img src="PA1_template_files/figure-html/unnamed-chunk-2-1.png" /></p>
+<p><img src="PA1_template_files/figure-html/unnamed-chunk-3-1.png" /></p>
 </div>
 <div id="reporting-the-interval-with-max-value-of-steps" class="section level4">
 <h4>Reporting the interval with max value of steps</h4>
@@ -114,15 +117,20 @@ max_int</code></pre>
 </div>
 <div id="imputting-missing-values" class="section level3">
 <h3>Imputting missing values</h3>
-<div id="number-of-na-values-and-replacing-na-values" class="section level4">
-<h4>Number of NA values and replacing NA values</h4>
+<div id="number-of-na-values" class="section level4">
+<h4>Number of NA values</h4>
 <p>Here we first find the number of NA values in the variable steps</p>
-<pre class="r"><code>sum(is.na(activity$steps))</code></pre>
+<pre class="r"><code>na_values_count&lt;-sum(is.na(activity$steps))
+na_values_count</code></pre>
 <pre><code>## [1] 2304</code></pre>
-<p>and then we replace each NA with the mean for that interval; i.e if for example for day 2012-10-01 and interval 25 the variable steps has NA value, we replace the NA value with the mean for interval 25 over all days.</p>
+<p>The number of NA values is 2304.</p>
+</div>
+<div id="replacing-na-values-and-creating-a-new-dataset-with-all-na-values-filled" class="section level4">
+<h4>Replacing NA values and creating a new dataset with all NA values filled</h4>
+<p>We replace each NA with the mean for that interval; i.e if for example for day 2012-10-01 and interval 25 the variable steps has NA value, we replace the NA value with the mean for interval 25 over all days.</p>
 <p>The following code</p>
 <ul>
-<li>creates a copy of the activity label, called activity_filled</li>
+<li>creates a copy of the activity label, called activity_f</li>
 <li>performs this replacement/filling of the table.</li>
 </ul>
 <pre class="r"><code>activity_f&lt;-activity
@@ -139,13 +147,17 @@ for(i in 1:nrow(activity_f))
 daily_steps_f&lt;-summarise(by_date_f,sum(steps))
 names(daily_steps_f)&lt;-c(&quot;date&quot;,&quot;steps&quot;)
 hist(daily_steps_f$steps,main=&quot;Number of steps daily&quot;,xlab=&quot;Steps&quot;,col=&quot;wheat&quot;,breaks=10)</code></pre>
-<p><img src="PA1_template_files/figure-html/unnamed-chunk-6-1.png" /></p>
+<p><img src="PA1_template_files/figure-html/unnamed-chunk-7-1.png" /></p>
 <pre class="r"><code>mean_steps_f&lt;-mean(daily_steps_f$steps)
 mean_steps_f</code></pre>
 <pre><code>## [1] 10766.19</code></pre>
 <pre class="r"><code>median_steps_f&lt;-median(daily_steps_f$steps)
 median_steps_f</code></pre>
 <pre><code>## [1] 10766.19</code></pre>
+<ul>
+<li>The mean of the steps per day is 1.076618910^{4} steps.</li>
+<li>The median of the steps per day is 1.076618910^{4} steps.</li>
+</ul>
 </div>
 <div id="difference-between-data-comparing-results-from-first-part-with-results-with-missing-values-replaced" class="section level4">
 <h4>Difference between data: comparing results from first part with results with missing values replaced</h4>
@@ -166,13 +178,13 @@ activity_f[activity_f$day_type==T,]$day_type&lt;-&quot;weekend&quot;
 activity_f[activity_f$day_type==F,]$day_type&lt;-&quot;weekday&quot;
 activity_f&lt;-transform(activity_f,day_type=factor(day_type))</code></pre>
 </div>
-<div id="barplot-of-the-average-number-of-steps-taken-averaged-over-all-weekendweekdays" class="section level4">
-<h4>Barplot of the average number of steps taken averaged over all weekend/weekdays</h4>
+<div id="panel-plot-of-the-average-number-of-steps-taken-averaged-over-all-weekendweekdays" class="section level4">
+<h4>Panel plot of the average number of steps taken averaged over all weekend/weekdays</h4>
 <pre class="r"><code>library(lattice)
 by_int_day_t&lt;-group_by(activity_f,interval,day_type)
 act_int_day_t&lt;-summarise(by_int_day_t,Steps=mean(steps))
 xyplot(Steps~interval|day_type,data=act_int_day_t,layout=c(1,2),type=&#39;l&#39;,xlab=&quot;Interval&quot;,ylab=&quot;Number of steps&quot;) </code></pre>
-<p><img src="PA1_template_files/figure-html/unnamed-chunk-8-1.png" /></p>
+<p><img src="PA1_template_files/figure-html/unnamed-chunk-9-1.png" /></p>
 </div>
 </div>
 

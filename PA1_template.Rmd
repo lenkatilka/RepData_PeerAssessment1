@@ -8,11 +8,15 @@ output:
 
 ## What is mean total number of steps taken per day?
 
-#### Histogram and reporting mean and median
+#### Loading data
 
 ```{r}
 activity<-read.csv("activity.csv")
 library(dplyr)
+```
+
+#### Histogram and reporting mean and median
+```{r}
 steps_act<-activity[complete.cases(activity),]
 by_date<-group_by(steps_act,date)
 daily_steps<-summarise(by_date,sum(steps))
@@ -52,19 +56,23 @@ max_int
 
 ### Imputting missing values
 
-#### Number of NA values and replacing NA values
+#### Number of NA values
 
 Here we first find the number of NA values in the variable steps
 
 ```{r}
-sum(is.na(activity$steps))
+na_values_count<-sum(is.na(activity$steps))
+na_values_count
 ```
+The number of NA values is `r na_values_count`.
 
-and then we replace each NA with the mean for that interval; i.e if for example for day 2012-10-01 and interval 25 the variable steps has NA value, we replace the NA value with the mean for interval 25 over all days. 
+#### Replacing NA values and creating a new dataset with all NA values filled
+
+We replace each NA with the mean for that interval; i.e if for example for day 2012-10-01 and interval 25 the variable steps has NA value, we replace the NA value with the mean for interval 25 over all days. 
 
 The following code 
 
-* creates a copy of the activity label, called activity_filled 
+* creates a copy of the activity label, called activity_f 
 * performs this replacement/filling of the table.
 
 ```{r}
@@ -91,6 +99,9 @@ median_steps_f<-median(daily_steps_f$steps)
 median_steps_f
 ```
 
+* The mean of the steps per day is `r mean_steps_f` steps.
+* The median of the steps per day is `r median_steps_f` steps.
+
 #### Difference between data: comparing results from first part with results with missing values replaced
 
 * the height/frequency of the mean value in histogram is larger
@@ -108,7 +119,7 @@ activity_f[activity_f$day_type==F,]$day_type<-"weekday"
 activity_f<-transform(activity_f,day_type=factor(day_type))
 ```
 
-#### Barplot of the average number of steps taken averaged over all weekend/weekdays
+#### Panel plot of the average number of steps taken averaged over all weekend/weekdays
 
 ```{r}
 library(lattice)
